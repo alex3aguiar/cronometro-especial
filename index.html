@@ -96,23 +96,42 @@
       updateDisplay()
     }
 
+    function calcularProfundidadePorBusca(tTotal) {
+      const g = 9.8
+      const vSom = 343
+      let dMin = 0
+      let dMax = 1000
+      const precisao = 0.0001
+      let resultado = null
+
+      for (let i = 0; i < 100; i++) {
+        const d = (dMin + dMax) / 2
+        const tQueda = Math.sqrt(2 * d / g)
+        const tSom = d / vSom
+        const t = tQueda + tSom
+
+        if (Math.abs(t - tTotal) < precisao) {
+          resultado = d
+          break
+        }
+
+        if (t > tTotal) {
+          dMax = d
+        } else {
+          dMin = d
+          resultado = d
+        }
+      }
+
+      return resultado
+    }
+
     function showCalculations() {
       const totalSeconds = h * 3600 + m * 60 + s + ms / 10
       const g = 9.8
       const vSom = 343
 
-      const tempoTotal = totalSeconds
-      const a = 1 / g
-      const b = -1
-      const c = tempoTotal
-
-      const delta = b * b - 4 * a * c
-      let profundidade = null
-
-      if (delta >= 0) {
-        const tqueda = (-b + Math.sqrt(delta)) / (2 * a)
-        profundidade = 0.5 * g * tqueda * tqueda
-      }
+      const profundidade = calcularProfundidadePorBusca(totalSeconds)
 
       const tAr = totalSeconds
       const tSubida = tAr / 2
@@ -122,9 +141,7 @@
       results.innerHTML = `
         <strong>Baseado no tempo medido:</strong><br><br>
         <u>1. Profundidade de um poço</u><br>
-        Tempo total: ${tempoTotal.toFixed(2)} s<br>
-        Tempo da pedra caindo: calculado com equação do segundo grau<br>
-        Tempo do som subindo: d / ${vSom} m/s<br>
+        Tempo total: ${totalSeconds.toFixed(2)} s<br>
         Profundidade estimada: ${profundidade ? profundidade.toFixed(2) + ' metros' : 'não foi possível calcular'}<br><br>
         <u>2. Altura máxima da pedra lançada para cima</u><br>
         Tempo total no ar: ${tAr.toFixed(2)} s<br>
