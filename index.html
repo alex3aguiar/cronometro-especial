@@ -34,10 +34,13 @@
     }
     .results {
       margin-top: 30px;
-      max-width: 600px;
-      text-align: center;
-      font-size: 1.2em;
-      line-height: 1.5em;
+      max-width: 800px;
+      text-align: left;
+      font-size: 1.1em;
+      line-height: 1.6em;
+      padding: 20px;
+      background: #222;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -140,10 +143,31 @@
       const results = document.getElementById('results')
       results.innerHTML = `
         <strong>Baseado no tempo medido:</strong><br><br>
+
         <u>1. Profundidade de um poço</u><br>
-        Tempo total: ${totalSeconds.toFixed(2)} s<br>
+        Você soltou uma pedra e parou o cronômetro ao ouvir o som do impacto no fundo.<br><br>
+
+        Fórmula usada:
+        <pre>
+t_total = t_queda + t_som
+t_queda = √(2d / g)
+t_som   = d / v_som
+        </pre>
+        A profundidade \( d \) é resolvida numericamente, testando valores até que
+        <code>t_queda + t_som ≈ t_total</code>.<br><br>
+
+        Tempo total medido: ${totalSeconds.toFixed(2)} s<br>
         Profundidade estimada: ${profundidade ? profundidade.toFixed(2) + ' metros' : 'não foi possível calcular'}<br><br>
+
         <u>2. Altura máxima da pedra lançada para cima</u><br>
+        Você lançou uma pedra para cima e parou o cronômetro quando ela voltou ao chão.<br><br>
+
+        Fórmula usada:
+        <pre>
+t_total = 2 * t_subida
+altura_max = (1/2) * g * t_subida²
+        </pre>
+
         Tempo total no ar: ${tAr.toFixed(2)} s<br>
         Tempo de subida: ${tSubida.toFixed(2)} s<br>
         Altura máxima: ${alturaMax.toFixed(2)} metros
