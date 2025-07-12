@@ -2,26 +2,26 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Cronômetro</title>
+  <title>Cronômetro com Cálculos</title>
   <style>
     body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      height: 100vh;
-      margin: 0;
       background: #111;
       color: #fff;
       font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
     }
     .time {
-      font-size: 5em;
+      font-size: 4em;
       margin-bottom: 20px;
     }
     .buttons button {
       padding: 10px 20px;
-      margin: 0 10px;
+      margin: 0 5px;
       font-size: 1em;
       background: #333;
       color: white;
@@ -32,53 +32,105 @@
     .buttons button:hover {
       background: #555;
     }
+    .results {
+      margin-top: 30px;
+      max-width: 600px;
+      text-align: center;
+      font-size: 1.2em;
+      line-height: 1.5em;
+    }
   </style>
 </head>
 <body>
-  <div class="time" id="display">00:00:00</div>
+  <div class="time" id="display">00:00:00.0</div>
   <div class="buttons">
     <button onclick="start()">Iniciar</button>
-    <button onclick="pause()">Pausar</button>
+    <button onclick="pause()">Parar</button>
     <button onclick="reset()">Resetar</button>
   </div>
+  <div class="results" id="results"></div>
   <script>
-    let seconds = 0, minutes = 0, hours = 0
-    let timer = null
+    let ms = 0, s = 0, m = 0, h = 0, timer = null
 
     function updateDisplay() {
-      const h = String(hours).padStart(2, '0')
-      const m = String(minutes).padStart(2, '0')
-      const s = String(seconds).padStart(2, '0')
-      document.getElementById('display').textContent = `${h}:${m}:${s}`
+      const hs = String(h).padStart(2, '0')
+      const mn = String(m).padStart(2, '0')
+      const sc = String(s).padStart(2, '0')
+      const ml = String(ms).padStart(1, '0')
+      document.getElementById('display').textContent = `${hs}:${mn}:${sc}.${ml}`
     }
 
     function start() {
       if (timer) return
       timer = setInterval(() => {
-        seconds++
-        if (seconds === 60) {
-          seconds = 0
-          minutes++
+        ms++
+        if (ms === 10) {
+          ms = 0
+          s++
         }
-        if (minutes === 60) {
-          minutes = 0
-          hours++
+        if (s === 60) {
+          s = 0
+          m++
+        }
+        if (m === 60) {
+          m = 0
+          h++
         }
         updateDisplay()
-      }, 1000)
+      }, 100)
     }
 
     function pause() {
       clearInterval(timer)
       timer = null
+      showCalculations()
     }
 
     function reset() {
       pause()
-      seconds = 0
-      minutes = 0
-      hours = 0
+      ms = 0
+      s = 0
+      m = 0
+      h = 0
+      document.getElementById('results').innerHTML = ''
       updateDisplay()
+    }
+
+    function showCalculations() {
+      const totalSeconds = h * 3600 + m * 60 + s + ms / 10
+      const g = 9.8
+      const vSom = 343
+
+      const tempoTotal = totalSeconds
+      const a = 1 / g
+      const b = -1
+      const c = tempoTotal
+
+      const delta = b * b - 4 * a * c
+      let profundidade = null
+
+      if (delta >= 0) {
+        const tqueda = (-b + Math.sqrt(delta)) / (2 * a)
+        profundidade = 0.5 * g * tqueda * tqueda
+      }
+
+      const tAr = totalSeconds
+      const tSubida = tAr / 2
+      const alturaMax = 0.5 * g * tSubida * tSubida
+
+      const results = document.getElementById('results')
+      results.innerHTML = `
+        <strong>Baseado no tempo medido:</strong><br><br>
+        <u>1. Profundidade de um poço</u><br>
+        Tempo total: ${tempoTotal.toFixed(2)} s<br>
+        Tempo da pedra caindo: calculado com equação do segundo grau<br>
+        Tempo do som subindo: d / ${vSom} m/s<br>
+        Profundidade estimada: ${profundidade ? profundidade.toFixed(2) + ' metros' : 'não foi possível calcular'}<br><br>
+        <u>2. Altura máxima da pedra lançada para cima</u><br>
+        Tempo total no ar: ${tAr.toFixed(2)} s<br>
+        Tempo de subida: ${tSubida.toFixed(2)} s<br>
+        Altura máxima: ${alturaMax.toFixed(2)} metros
+      `
     }
 
     updateDisplay()
